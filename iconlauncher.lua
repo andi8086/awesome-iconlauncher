@@ -49,15 +49,13 @@ end
 
 local scandir = function(path, handle_files_callback, bar)
         erg = {}
-        awful.spawn.with_line_callback("ls -a1 " .. path,
+        awful.spawn.with_line_callback("ls -A1 " .. path,
         {
                 output_done = function()
                         _M.handle_files_callback(erg, bar)
                 end,
                 stdout = function(line)
-                        if line ~= '.' and line ~= '..' then
-                                table.insert(erg, line)
-                        end
+                        table.insert(erg, line)
                 end
         })
 end
