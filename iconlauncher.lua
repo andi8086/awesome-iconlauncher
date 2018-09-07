@@ -73,12 +73,19 @@ _M.handle_files_callback = function(file_list, bar_layout)
                         end
                         f:close()
                 end
-                link_name = link["Name"] or "unnamed"
-                link_icon = link["Icon"] or ""
-                link_exec = link["Exec"] or ""
+                local link_name = link["Name"] or "unnamed"
+                local link_icon = link["Icon"] or ""
+                local link_exec = link["Exec"] or ""
+
+                if not gears.filesystem.file_readable(link_icon) then
+                        link_icon = _M.homedir .. "/.icons/" .. link_icon
+                end
+                if not gears.filesystem.file_readable(link_icon) then
+                        link_icon = beautiful.iconlauncher_icon
+                end
 
                 local ib = awful.widget.button {
-                        image = beautiful.iconlauncher_icon,
+                        image = link_icon
                 }
                 ib.scale = false
 
@@ -156,6 +163,10 @@ _M.new = function(position, width, bgcolor, screen)
                 forced_width = self.launcherbar.width,
                 layout = wibox.layout.grid
         }
+
+        local f = assert(io.popen("bash -c 'xdg-user-dir'"))
+        _M.homedir = f:read("*a"):sub(1, -2)
+        f:close()
 
         awful.spawn.easy_async("bash -c 'xdg-user-dir DESKTOP'",
                 function(stdout, stderr, reason, exit_code)
